@@ -1,142 +1,60 @@
-var cartValue = document.getElementById("cart-value");
-var cartButton = document.getElementById("cart");
+// Initialize cart object to store items and their quantities
+var cart = [];
+var quantity = 0;
 
-var addButtons = document.getElementsByClassName("button");
+var url = `https://wa.me/919000000000?text=Order details This was our `;
 
-var items = [
-  {
-    name: "This was our pact",
-    quantity: 0,
-    dollars: 7,
-    cents: 49,
-  },
-  {
-    name: "The famous five",
-    quantity: 0,
-    dollars: 4,
-    cents: 59,
-  },
-  {
-    name: "Matilda",
-    quantity: 0,
-    dollars: 6,
-    cents: 80,
-  },
-  {
-    name: "Harry Potter",
-    quantity: 0,
-    dollars: 10,
-    cents: 0,
-  },
-  {
-    name: "For Young Readers",
-    quantity: 0,
-    dollars: 7,
-    cents: 29,
-  },
-  {
-    name: "Wimpy Kid - DIY",
-    quantity: 0,
-    dollars: 4,
-    cents: 99,
-  },
-  {
-    name: "Dart Board",
-    quantity: 0,
-    dollars: 17,
-    cents: 49,
-  },
-  {
-    name: "Connect Four",
-    quantity: 0,
-    dollars: 19,
-    cents: 99,
-  },
-  {
-    name: "Jenga",
-    quantity: 0,
-    dollars: 20,
-    cents: 99,
-  },
-  {
-    name: "Monopoly",
-    quantity: 0,
-    dollars: 19,
-    cents: 49,
-  },
-  {
-    name: "Bookmarks",
-    quantity: 0,
-    dollars: 12,
-    cents: 49,
-  },
-  {
-    name: "Birthday Card",
-    quantity: 0,
-    dollars: 12,
-    cents: 49,
-  },
-  {
-    name: "Stuffed toys",
-    quantity: 0,
-    dollars: 15,
-    cents: 99,
-  },
-  {
-    name: "Dream catcher drawing",
-    quantity: 0,
-    dollars: 18,
-    cents: 49,
-  },
-];
-
-function updateCart() {
-  let cart = 0;
-  for (index = 0; index < items.length; index++) {
-    cart = cart + items[index].quantity;
-  }
-  cartValue.innerHTML = cart;
+function update(cart) {
+    var cart = document.getElementById("cart-value");
+    cart.innerText = quantity;
 }
 
-for (let i = 0; i < addButtons.length; i++) {
-  addButtons[i].onclick = (e) => {
-    items[i].quantity++;
-    updateCart();
-  };
-}
+function addToCart(item) {
+    var closest = item.closest("div[id]");
+    var id = closest.id;
+    var element = document.getElementById(id);
+    var name_html = document.querySelector(`#${element.id} div h3`);
+    var price_html = document.querySelector(`#${element.id} .buy p`);
+    var name = name_html.innerText;
+    var price_$ = price_html.innerText;
+    var price = parseFloat(price_$.replace("$", ""));
+    quantity += 1;
+    // checking whether the name of the product is already in the cart
+    var index = cart.findIndex(function (cartItem) 
+    {
+        return cartItem.name.indexOf(name) > -1;
+    });
 
-var finalDollars = 0;
-var finalCents = 0;
-
-function updatePrice() {
-  let totalPriceInCents = 0;
-
-  for (index = 0; index < items.length; index++) {
-    totalPriceInCents =
-      totalPriceInCents +
-      items[index].quantity * (items[index].dollars * 100 + items[index].cents);
-  }
-  finalDollars = Math.floor(totalPriceInCents / 100);
-  finalCents = totalPriceInCents % 100;
-}
-
-
-cartButton.onclick = () => {
-  updatePrice();
-
-
-  for (let index = 0; index < items.length; index++) {
-    if (items[index].quantity != 0) {
-      console.log(
-        "Item name: " +
-          items[index].name +
-          " - Quantity: " +
-          items[index].quantity
-      );
+    if (index === -1) {
+    // If not adding new items
+    var tempcart = { name: name, price: price, quantity: 1 };
+    cart.push(tempcart);
+    } 
+    else {
+    // if it is already just add the quantity to the cart
+    cart[index].quantity++;
     }
-  }
+    update(cart);
+}
 
-  console.log(
-    "The total amount is " + finalDollars + "$ and " + finalCents + " cents"
-  );
-};
+var totalAmount = 0;
+
+function printCart(cart) {
+  cart.forEach(function (item) {
+    console.log(`Item name: ${item.name} - Quantity: ${item.quantity}`);
+    totalAmount += item.price * item.quantity;
+    url += `${item.name} ${item.quantity} `;
+  });
+  printTotal(totalAmount);
+}
+
+function printTotal(totalAmount) {
+    var dollar = Math.floor(totalAmount);
+    var cent = Math.floor((totalAmount - dollar) * 100);
+    url += `Total price:$${dollar} ${cent}c`;
+    console.log(`the total amount is ${dollar}$ and ${cent} cents`);
+}
+
+function new_tab() {
+  window.open(url, "_blank");
+}
